@@ -1,0 +1,88 @@
+{
+  "name": "simple-s3-uploader",
+  "version": "0.1.0",
+  "description": "simple-uploader",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "build-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder --dir",
+    "pack-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder",
+    "publish-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder --publish always"
+  },
+  "repository": "git+https://github.com/rBurgett/simple-uploader.git",
+  "author": "Ryan Burgett <ryan@burgettweb.net>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/rBurgett/simple-uploader/issues"
+  },
+  "homepage": "https://github.com/rBurgett/simple-uploader#readme",
+  "private": true,
+  "devDependencies": {
+    "co": "^4.6.0",
+    "electron": "~1.7.0",
+    "electron-builder": "^20.26.1",
+    "eslint": "^5.2.0",
+    "lodash": "^4.17.10",
+    "rmrf-promise": "^1.1.0"
+  },
+  "dependencies": {
+    "electron-context-menu": "^0.10.0",
+    "electron-is-dev": "^0.3.0",
+    "electron-updater": "^3.0.3",
+    "fs-extra-promise": "^1.0.1",
+    "jquery": "^3.3.1",
+    "s3": "^4.4.0",
+    "sweetalert2": "^7.26.10"
+  },
+  "build": {
+    "electronVersion": "1.7.15",
+    "appId": "com.ryanburgett.simple-s3-uploader",
+    "productName": "Simple S3 Uploader",
+    "copyright": "Copyright © 2018 Ryan Burgett",
+    "directories": {
+      "app": "temp",
+      "output": "dist-native"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "./client/images/favicon.ico",
+      "publish": {
+        "provider": "github",
+        "releaseType": "draft"
+      }
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities",
+      "icon": "./client/images/simple-uploader.icns",
+      "publish": {
+        "provider": "github",
+        "releaseType": "draft"
+      }
+    },
+    "linux": {
+      "target": "appImage",
+      "icon": "./client/images/linux_icons/",
+      "synopsis": "Copyright © 2018 Ryan Burgett",
+      "description": "Copyright © 2018 Ryan Burgett",
+      "category": "Utility",
+      "desktop": {
+        "Name": "Simple S3 Uploader"
+      },
+      "publish": {
+        "provider": "github",
+        "releaseType": "draft"
+      }
+    }
+  }
+}
