@@ -29,3 +29,29 @@ button {
   padding: 10px;
   font-size: 18px;
 }
+.header-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+  font-size: 20px;
+  line-height: 30px;
+}
+.header-container h4 {
+  flex-grow: 1;
+  /*font-size: 20px;*/
+  /*line-height: 30px;*/
+  margin-bottom: 0;
+}
+.header-container a {
+  /*margin-left: 10px;*/
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #666;
+  text-decoration: none;
+}
+.header-container a:hover {
+  color: #000;
+  text-decoration: none;
+}

@@ -17,11 +17,23 @@ let bucket = localStorage.getItem('bucket') || '';
 let accessKeyId = localStorage.getItem('accessKeyId') || '';
 let secretAccessKey = localStorage.getItem('secretAccessKey') || '';
 
+const renderUploads = () => {
+  $('#js-main').html(`
+  <div style="padding:10px;">
+    ${headerHTML({ title: 'Uploads' })}
+  </div>
+  `);
+  setTimeout(() => {
+    attachHeaderEvents();
+  }, 100);
+};
+
 const renderSettings = () => {
   $('#js-main').html(`
-  <div style="padding:15px;">
+  <div style="padding:10px;">
+    ${headerHTML({ title: 'Settings' })}
     <form>
-      <h3 style="text-align:center;">Enter S3 Credentials</h3>
+      <h3 style="text-align:left;">Enter S3 Credentials</h3>
       <div class="form-group">
         <label>Bucket</label>
         <input id="js-bucket" type="text" value="${bucket}" autofocus />
@@ -39,7 +51,7 @@ const renderSettings = () => {
   </div>
   `);
   setTimeout(() => {
-
+    attachHeaderEvents();
     $('form')
       .off('submit')
       .on('submit', e => {
@@ -82,16 +94,49 @@ const renderSettings = () => {
   }, 100);
 };
 
+const headerHTML = ({ title }) => {
+  return `
+    <div class="header-container">
+      <h4>${title}</h4>
+      <a id="js-showUpload" href="#"><i class="fa fa-upload"></i></a>
+      <a id="js-showList" href="#"><i class="fa fa-list"></i></a>
+      <a id="js-showSettings" href="#" style="margin-right:-5px;"><i class="fa fa-cog"></i></a>
+    </div>
+  `;
+};
+const attachHeaderEvents = () => {
+  $('#js-showUpload')
+    .off('click')
+    .on('click', e => {
+      e.preventDefault();
+      renderMain();
+    });
+  $('#js-showList')
+    .off('click')
+    .on('click', e => {
+      e.preventDefault();
+      renderUploads();
+    });
+  $('#js-showSettings')
+    .off('click')
+    .on('click', e => {
+      e.preventDefault();
+      renderSettings();
+    });
+};
+
 const renderMain = () => {
   $('#js-main').html(`
   <div id="js-pasteArea" style="padding:10px;">
-    <div style="height:350px;border-style:dashed;border-color:#000;border-width:4px;">
-      <h3 style="text-align:center;line-height:334px;cursor:default;">Drop File Here</h3>
+    ${headerHTML({ title: 'Simple S3 Uploader' })}
+    <div style="height:310px;border-style:dashed;border-color:#000;border-width:4px;">
+      <h3 style="text-align:center;line-height:294px;cursor:default;">Drop File Here</h3>
     </div>
   </div>
   `);
 
   setTimeout(() => {
+    attachHeaderEvents();
     $(document).on('mouseout', () => {
       $('#js-pasteArea').css('background-color', '#fff');
     });
@@ -174,6 +219,16 @@ const renderMain = () => {
                   text: `${downloadLink} copied to clipboard.`,
                   type: 'success'
                 });
+                const uploadsStr = localStorage.getItem('uploads') || '[]';
+                const uploads = JSON.parse(uploadsStr);
+                const newUploads = [
+                  ...uploads,
+                  {
+                    key: name ,
+                    date: new Date().getTime()
+                  }
+                ];
+                localStorage.setItem('uploads', JSON.stringify(newUploads));
               });
             }
           })

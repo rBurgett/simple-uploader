@@ -22,6 +22,7 @@
     "electron": "~1.7.0",
     "electron-builder": "^20.26.1",
     "eslint": "^5.2.0",
+    "font-awesome": "^4.7.0",
     "lodash": "^4.17.10",
     "rmrf-promise": "^1.1.0"
   },
