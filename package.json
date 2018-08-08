@@ -32,7 +32,8 @@
     "fs-extra-promise": "^1.0.1",
     "jquery": "^3.3.1",
     "s3": "^4.4.0",
-    "sweetalert2": "^7.26.10"
+    "sweetalert2": "^7.26.10",
+    "uuid": "^3.3.2"
   },
   "build": {
     "electronVersion": "1.7.15",

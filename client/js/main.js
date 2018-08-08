@@ -1,7 +1,17 @@
 const $ = require('jquery');
 const { clipboard, ipcRenderer } = require('electron');
+const path = require('path');
 const s3 = require('s3');
 const swal = require('sweetalert2');
+const uuid = require('uuid');
+
+const getRandom = len => {
+  let rand = '';
+  while(rand.length < len) {
+    rand += uuid.v4().replace(/-/g, '');
+  }
+  return rand.slice(0, len);
+};
 
 let bucket = localStorage.getItem('bucket') || '';
 let accessKeyId = localStorage.getItem('accessKeyId') || '';
@@ -101,71 +111,73 @@ const renderMain = () => {
         e.preventDefault();
         $('#js-pasteArea').css('background-color', '#fff');
         const { files } = e.originalEvent.dataTransfer;
-        if(files.length > 0) {
-          const [ file ] = files;
-          swal({
-            title: 'Are you sure?',
-            text: `Are you sure that you want to upload ${file.name}?`,
-            showConfirmButton: true,
-            showCancelButton: true
-          })
-            .then(({ value: confirmed }) => {
+        if(files.length === 0) return;
+        const [ file ] = files;
+        const base = path.basename(file.name);
+        const ext = path.extname(file.name);
+        const name = base + '-' + getRandom(4) + ext;
+        swal({
+          title: 'Are you sure?',
+          text: `Are you sure that you want to upload ${file.name}?`,
+          showConfirmButton: true,
+          showCancelButton: true
+        })
+          .then(({ value: confirmed }) => {
 
-              if(confirmed) {
+            if(confirmed) {
+              swal({
+                html: 'Uploading... <span id="js-progress"></span>',
+                showConfirmButton: false,
+                showCancelButton: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false
+              });
+              const client = s3.createClient({
+                multipartUploadThreshhold: 1000000000,
+                multipartUploadSize: 1000000000,
+                s3Options: {
+                  accessKeyId,
+                  secretAccessKey
+                }
+              });
+              const params = {
+                localFile: file.path,
+                s3Params: {
+                  Bucket: bucket,
+                  Key: name,
+                  ACL: 'public-read'
+                }
+              };
+              const uploader = client.uploadFile(params);
+              uploader.on('error', function(err) {
+                console.error(err);
                 swal({
-                  html: 'Uploading... <span id="js-progress"></span>',
-                  showConfirmButton: false,
-                  showCancelButton: false,
-                  allowOutsideClick: false,
-                  allowEscapeKey: false
-                });
-                const client = s3.createClient({
-                  multipartUploadThreshhold: 1000000000,
-                  multipartUploadSize: 1000000000,
-                  s3Options: {
-                    accessKeyId,
-                    secretAccessKey
-                  }
-                });
-                const params = {
-                  localFile: file.path,
-                  s3Params: {
-                    Bucket: bucket,
-                    Key: file.name,
-                    ACL: 'public-read'
-                  }
-                };
-                const uploader = client.uploadFile(params);
-                uploader.on('error', function(err) {
-                  console.error(err);
-                  swal({
-                    title: 'Oops',
-                    text: err.message,
-                    type: 'error'
+                  title: 'Oops',
+                  text: err.message,
+                  type: 'error'
+                })
+                  .then(() => {
+                    swal.close();
+                    renderSettings();
                   })
-                    .then(() => {
-                      swal.close();
-                      renderSettings();
-                    })
-                    .catch(console.error);
+                  .catch(console.error);
+              });
+              uploader.on('progress', function() {
+                const percentage = (uploader.progressAmount / uploader.progressTotal) * 100;
+                $('#js-progress').text(parseInt(percentage, 10) + '%');
+              });
+              uploader.on('end', function() {
+                const downloadLink = `https://s3.amazonaws.com/${bucket}/${encodeURI(name)}`;
+                clipboard.writeText(downloadLink);
+                swal({
+                  title: 'Success!',
+                  text: `${downloadLink} copied to clipboard.`,
+                  type: 'success'
                 });
-                uploader.on('progress', function() {
-                  const percentage = (uploader.progressAmount / uploader.progressTotal) * 100;
-                  $('#js-progress').text(parseInt(percentage, 10) + '%');
-                });
-                uploader.on('end', function() {
-                  const downloadLink = `https://s3.amazonaws.com/${bucket}/${file.name}`;
-                  clipboard.writeText(downloadLink);
-                  swal({
-                    title: 'Success!',
-                    text: `${downloadLink} copied to clipboard.`,
-                    type: 'success'
-                  });
-                });
-              }
-            })
-            .catch(console.err);
-        }
+              });
+            }
+          })
+          .catch(console.err);
       });
   }, 100);
 };
