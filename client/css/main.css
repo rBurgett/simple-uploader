@@ -60,6 +60,12 @@ table {
   border-collapse: collapse;
   border: 1px solid #aaa;
 }
+tbody tr {
+  background-color: #fff;
+}
+tbody tr:hover {
+  background-color: #eee;
+}
 th {
   border: 1px solid #aaa;
 }
@@ -69,6 +75,7 @@ tr {
 a.copy-link {
   opacity: .7;
   color: #00f;
+  outline: none;
 }
 a.copy-link:hover {
   opacity: 1;
@@ -76,6 +83,7 @@ a.copy-link:hover {
 a.delete {
   opacity: .7;
   color: #f00;
+  outline: none;
 }
 a.delete:hover {
   opacity: 1;
