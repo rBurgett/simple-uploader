@@ -178,7 +178,7 @@ const renderSettings = () => {
       </div>
       <div class="form-group">
         <label>Secret Access Key</label>
-        <input id="js-secretAccessKey" type="text" value="${secretAccessKey}"/>
+        <input id="js-secretAccessKey" type="password" value="${secretAccessKey}"/>
       </div>
       <button type="submit">Save Credentials</button>
     </form>
