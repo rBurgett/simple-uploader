@@ -59,6 +59,7 @@ button {
 table {
   border-collapse: collapse;
   border: 1px solid #aaa;
+  min-width: 100%;
 }
 tbody tr {
   background-color: #fff;
@@ -71,6 +72,7 @@ th {
 }
 tr {
   border: 1px solid #aaa;
+  min-width: 100%;
 }
 a.copy-link {
   opacity: .7;

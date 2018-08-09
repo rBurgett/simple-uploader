@@ -170,7 +170,7 @@ const renderSettings = () => {
       <h3 style="text-align:left;">Enter S3 Credentials</h3>
       <div class="form-group">
         <label>Bucket</label>
-        <input id="js-bucket" type="text" value="${bucket}" autofocus />
+        <input id="js-bucket" type="text" value="${bucket}" ${bucket ? '' : 'autofocus'} />
       </div>
       <div class="form-group">
         <label>Access Key ID</label>
