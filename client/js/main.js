@@ -1,5 +1,6 @@
 const $ = require('jquery');
 const { clipboard, ipcRenderer } = require('electron');
+const moment = require('moment');
 const path = require('path');
 const s3 = require('s3');
 const swal = require('sweetalert2');
@@ -16,16 +17,149 @@ const getRandom = len => {
 let bucket = localStorage.getItem('bucket') || '';
 let accessKeyId = localStorage.getItem('accessKeyId') || '';
 let secretAccessKey = localStorage.getItem('secretAccessKey') || '';
+let showAllUploads = false;
+
+const getUploads = () => {
+  let uploads;
+  try {
+    const uploadsStr = localStorage.getItem('uploads') || '[]';
+    uploads = JSON.parse(uploadsStr);
+  } catch(err) {
+    console.error(err);
+    uploads = [];
+  }
+  return uploads;
+};
+const saveUploads = (uploads = []) => {
+  localStorage.setItem('uploads', JSON.stringify(uploads));
+};
+const getDownloadLink = key => `https://s3.amazonaws.com/${bucket}/${encodeURI(key)}`;
 
 const renderUploads = () => {
+
+  const allUploads = getUploads().reverse();
+  const uploads = showAllUploads ? allUploads : allUploads.slice(0, 5);
+
+  const tableItems = uploads
+    .map(({ key, date }) => {
+      const encodedKey = encodeURI(key);
+      return `<tr data-key="${encodedKey}">
+        <td style="font-size:14px;">${moment(new Date(date)).format('YYYY/MM/DD')}</td>
+        <td style="font-size:14px;">${key}</td>
+        <td style="text-align:center;"><a class="js-copyBtn copy-link" href="${getDownloadLink(key)}" data-key="${encodedKey}"><i class="fa fa-clipboard"></i></a></td>
+        <td style="text-align:center;"><a class="js-deleteBtn delete" href="#" data-key="${encodedKey}"><i class="fa fa-times"></i></a></td>
+      </tr>`;
+    });
+
   $('#js-main').html(`
   <div style="padding:10px;">
     ${headerHTML({ title: 'Uploads' })}
   </div>
+  <div style="margin-left:10px;margin-right:10px;margin-bottom:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Link</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableItems.join('\n')}
+        </tbody>
+      </table>
+    ${(allUploads.length < 6 || (allUploads.length > 5 && showAllUploads)) ? '' : '<button id="js-showAll" style="margin-top:10px;" type="button">Show More</buttoni>'}
+  </div>
   `);
   setTimeout(() => {
     attachHeaderEvents();
+    $('#js-showAll')
+      .off('click')
+      .on('click', e => {
+        e.preventDefault();
+        showAllUploads = true;
+        renderUploads();
+      });
   }, 100);
+  $('.js-copyBtn')
+    .off('click')
+    .on('click', e => {
+      e.preventDefault();
+      const key = decodeURI($(e.currentTarget).attr('data-key'));
+      const downloadLink = getDownloadLink(key);
+      clipboard.writeText(downloadLink);
+      swal({
+        text: `${downloadLink} copied to clipboard.`
+      });
+    });
+  $('.js-deleteBtn')
+    .off('click')
+    .on('click', async function(e) {
+      e.preventDefault();
+      const encodedKey = $(e.currentTarget).attr('data-key');
+      const key = decodeURI(encodedKey);
+
+      const { value: confirmed } = await swal({
+        type: 'warning',
+        text: `Are you sure that you want to delete ${key}?`,
+        showCancelButton: true
+      });
+      if(!confirmed) return;
+
+      const client = s3.createClient({
+        multipartUploadThreshhold: 1000000000,
+        multipartUploadSize: 1000000000,
+        s3Options: {
+          accessKeyId,
+          secretAccessKey
+        }
+      });
+      const s3Params = {
+        Bucket: bucket,
+        Delete: {
+          Objects: [{Key: key}]
+        }
+      };
+      console.log(s3Params);
+      client.s3.deleteObjects(s3Params, err => {
+        if(err) {
+          console.error(err);
+          swal({
+            title: 'Oops',
+            text: err.message,
+            type: 'error'
+          })
+            .then(() => {
+              swal.close();
+              renderSettings();
+            })
+            .catch(console.error);
+          return;
+        }
+        // swal({
+        //   text: `${key} successfuly deleted.`,
+        //   type: 'success'
+        // });
+        const newUploads = getUploads()
+          .filter(u => u.key !== key);
+        saveUploads(newUploads);
+        if(showAllUploads) {
+          [...$('tr')]
+            .map(tr => {
+              return $(tr);
+            })
+            .filter($t => {
+              return $t.attr('data-key') === encodedKey;
+            })
+            .map($t => {
+              $t.remove();
+            });
+        } else {
+          renderUploads();
+        }
+      });
+    });
 };
 
 const renderSettings = () => {
@@ -158,8 +292,8 @@ const renderMain = () => {
         const { files } = e.originalEvent.dataTransfer;
         if(files.length === 0) return;
         const [ file ] = files;
-        const base = path.basename(file.name);
         const ext = path.extname(file.name);
+        const base = path.basename(file.name, ext);
         const name = base + '-' + getRandom(4) + ext;
         swal({
           title: 'Are you sure?',
@@ -212,15 +346,14 @@ const renderMain = () => {
                 $('#js-progress').text(parseInt(percentage, 10) + '%');
               });
               uploader.on('end', function() {
-                const downloadLink = `https://s3.amazonaws.com/${bucket}/${encodeURI(name)}`;
+                const downloadLink = getDownloadLink(name);
                 clipboard.writeText(downloadLink);
                 swal({
                   title: 'Success!',
                   text: `${downloadLink} copied to clipboard.`,
                   type: 'success'
                 });
-                const uploadsStr = localStorage.getItem('uploads') || '[]';
-                const uploads = JSON.parse(uploadsStr);
+                const uploads = getUploads();
                 const newUploads = [
                   ...uploads,
                   {
@@ -228,7 +361,7 @@ const renderMain = () => {
                     date: new Date().getTime()
                   }
                 ];
-                localStorage.setItem('uploads', JSON.stringify(newUploads));
+                saveUploads(newUploads);
               });
             }
           })
