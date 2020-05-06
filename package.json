@@ -7,7 +7,12 @@
     "start": "electron .",
     "build-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder --dir",
     "pack-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder",
-    "publish-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder --publish always"
+    "publish-native": "node ./copy-build-files.js && cd temp && npm install --production && cd .. && electron-builder --publish always",
+    "scss": "npm run css-compile && npm run css-prefix && npm run css-minify",
+    "watch-scss": "nodemon -w scss -e scss -x npm run scss",
+    "css-compile": "node-sass --output-style expanded --source-map true --source-map-contents true --precision 6 scss/main.scss public/css/main.css",
+    "css-prefix": "postcss --replace \"public/css/main.css\"",
+    "css-minify": "cleancss --level 1 --source-map --source-map-inline-sources --output public/css/main.min.css public/css/main.css"
   },
   "repository": "git+https://github.com/rBurgett/simple-uploader.git",
   "author": "Ryan Burgett <ryan@burgettweb.net>",
@@ -18,12 +23,17 @@
   "homepage": "https://github.com/rBurgett/simple-uploader#readme",
   "private": true,
   "devDependencies": {
+    "clean-css-cli": "^4.3.0",
     "co": "^4.6.0",
     "electron": "~1.7.0",
     "electron-builder": "^20.26.1",
     "eslint": "^5.2.0",
     "font-awesome": "^4.7.0",
+    "less-plugin-autoprefixer": "^2.1.0",
     "lodash": "^4.17.10",
+    "node-sass": "^4.14.1",
+    "nodemon": "^2.0.3",
+    "postcss-cli": "^7.1.1",
     "rmrf-promise": "^1.1.0"
   },
   "dependencies": {
