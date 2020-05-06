@@ -164,6 +164,8 @@ const App = () => {
         ]
       });
       if(!response) return;
+      setUploadingMessage('Compressing...');
+      setUploading(true);
       filePath = await zipDirectory(filePaths[0]);
     } else {
       const { response } = await dialog.showMessageBox(getCurrentWindow(), {
@@ -177,6 +179,8 @@ const App = () => {
         ]
       });
       if(!response) return;
+      setUploadingMessage('Compressing...');
+      setUploading(true);
       filePath = await zipFiles(filePaths);
     }
     const key = prepFilename(filePath);

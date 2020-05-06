@@ -49,7 +49,7 @@ const UploadView = ({ uploading, uploadingMessage = '', uploadingPercent = 0, up
     <div style={styles.container}>
       <a href={'#'} onClick={onClick}>
         <h3 style={styles.heading}>{uploading ? uploadingMessage : 'Drop file(s) here'}</h3>
-        <h3 style={styles.heading}>{uploading ? parseInt(uploadingPercent, 10) + '%' : 'or click to browse'}</h3>
+        <h3 style={styles.heading}>{uploading && uploadingPercent ? parseInt(uploadingPercent, 10) + '%' : uploading ? '' : 'or click to browse'}</h3>
       </a>
     </div>
   );
