@@ -11,7 +11,7 @@ require('electron-context-menu')();
 app.on('ready', () => {
 
   const width = 400;
-  const height = platform === 'win32' ? 420 : platform === 'darwin' ? 400 : 380;
+  const height = platform === 'win32' ? 420 : platform === 'darwin' ? 400 : 400;
   const appWindow = new BrowserWindow({
     show: false,
     minWidth: width,
