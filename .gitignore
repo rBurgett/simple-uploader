@@ -61,6 +61,7 @@ typings/
 .next
 
 .idea
-temp
-dist-native
+/dist/temp
+/dist/dist-native
 .DS_Store
+/dist

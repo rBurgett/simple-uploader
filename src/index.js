@@ -1,25 +1,34 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
-const isDev = require('electron-is-dev');
-const { autoUpdater } = require('electron-updater');
-const fs = require('fs-extra-promise');
-const path = require('path');
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import isDev from 'electron-is-dev';
+import { autoUpdater } from 'electron-updater';
+import fs from 'fs-extra';
+import path from 'path';
 
 const { platform } = process;
 
 require('electron-context-menu')();
 
 app.on('ready', () => {
+
+  const width = 400;
+  const height = platform === 'win32' ? 420 : platform === 'darwin' ? 400 : 380;
   const appWindow = new BrowserWindow({
     show: false,
-    width: 400,
-    height: platform === 'win32' ? 420 : platform === 'darwin' ? 400 : 380
+    minWidth: width,
+    width,
+    minHeight: height,
+    height,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   appWindow.once('ready-to-show', () => {
     appWindow.show();
+    appWindow.focus();
   });
 
-  appWindow.loadURL(`file://${__dirname}/client/index.html`);
+  appWindow.loadURL(`file://${path.resolve(__dirname, '..')}/public/index.html`);
 
   if(platform === 'darwin') {
     const menuTemplate = [];

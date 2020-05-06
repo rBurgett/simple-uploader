@@ -114,7 +114,6 @@ p {
 abbr[title],
 abbr[data-original-title] {
   text-decoration: underline;
-  -webkit-text-decoration: underline dotted;
   text-decoration: underline dotted;
   cursor: help;
   border-bottom: 0;
@@ -1395,26 +1394,6 @@ pre code {
   outline: none;
 }
 
-.form-control::-webkit-input-placeholder {
-  color: #868e96;
-  opacity: 1;
-}
-
-.form-control::-moz-placeholder {
-  color: #868e96;
-  opacity: 1;
-}
-
-.form-control:-ms-input-placeholder {
-  color: #868e96;
-  opacity: 1;
-}
-
-.form-control::-ms-input-placeholder {
-  color: #868e96;
-  opacity: 1;
-}
-
 .form-control::placeholder {
   color: #868e96;
   opacity: 1;
@@ -1766,9 +1745,6 @@ select.form-control-lg:not([size]):not([multiple]), .input-group-lg > select.for
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   border: 1px solid transparent;
   padding: 0.5rem 0.75rem;
@@ -2684,9 +2660,6 @@ tbody.collapse.show {
   width: 1rem;
   height: 1rem;
   pointer-events: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   background-color: #434857;
   background-repeat: no-repeat;
@@ -2740,8 +2713,6 @@ tbody.collapse.show {
   background-size: 8px 10px;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 0.25rem;
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
 }
 
@@ -2798,9 +2769,6 @@ tbody.collapse.show {
   line-height: 1.5;
   color: #495057;
   pointer-events: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   background-color: #fff;
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -3454,9 +3422,7 @@ tbody.collapse.show {
 
 @media (min-width: 576px) {
   .card-columns {
-    -moz-column-count: 3;
     column-count: 3;
-    -moz-column-gap: 1.25rem;
     column-gap: 1.25rem;
   }
   .card-columns .card {
@@ -3805,15 +3771,6 @@ tbody.collapse.show {
   color: black;
 }
 
-@-webkit-keyframes progress-bar-stripes {
-  from {
-    background-position: 1rem 0;
-  }
-  to {
-    background-position: 0 0;
-  }
-}
-
 @keyframes progress-bar-stripes {
   from {
     background-position: 1rem 0;
@@ -3847,7 +3804,6 @@ tbody.collapse.show {
 }
 
 .progress-bar-animated {
-  -webkit-animation: progress-bar-stripes 1s linear infinite;
   animation: progress-bar-stripes 1s linear infinite;
 }
 
@@ -4547,7 +4503,6 @@ button.close {
   align-items: center;
   width: 100%;
   transition: transform 0.6s ease;
-  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   perspective: 1000px;
 }
@@ -5650,9 +5605,8 @@ a.bg-dark:focus, a.bg-dark:hover {
   z-index: 1030;
 }
 
-@supports ((position: -webkit-sticky) or (position: sticky)) {
+@supports (position: sticky) {
   .sticky-top {
-    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 1020;
@@ -5667,7 +5621,6 @@ a.bg-dark:focus, a.bg-dark:hover {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  -webkit-clip-path: inset(50%);
   clip-path: inset(50%);
   border: 0;
 }
@@ -5679,7 +5632,6 @@ a.bg-dark:focus, a.bg-dark:hover {
   overflow: visible;
   clip: auto;
   white-space: normal;
-  -webkit-clip-path: none;
   clip-path: none;
 }
 
@@ -9880,6 +9832,7 @@ textarea {
   margin: 5px 10px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
+  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -10938,4 +10891,21 @@ canvas {
   background-color: #4d5364;
   border-color: transparent;
 }
+
+a svg.svg-icon {
+  fill: #1997c6;
+}
+
+a svg.svg-icon:hover {
+  fill: #106382;
+}
+
+a.text-danger svg.svg-icon {
+  fill: #dc3545;
+}
+
+a.text-danger svg.svg-icon:hover {
+  fill: #a71d2a;
+}
+
 /*# sourceMappingURL=main.css.map */
