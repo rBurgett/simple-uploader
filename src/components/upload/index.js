@@ -32,8 +32,8 @@ const UploadView = ({ uploading, uploadingMessage = '', uploadingPercent = 0, up
       e.preventDefault();
       const darwin = process.platform === 'darwin';
       const { canceled, filePaths } = await dialog.showOpenDialog(getCurrentWindow(), {
-        title: darwin ? 'Select File/Folder' : 'Select File(s)',
-        message: 'Select file(s) to upload.',
+        title: darwin ? 'Select File/Folder' : 'Select Files',
+        message: darwin ? 'Select one or more files or folders to upload.' : 'Select one or more files to upload.',
         properties: darwin ?
           [
             'openDirectory',
