@@ -61,7 +61,8 @@ const SettingsView = ({ region: initialRegion, accessKeyId: initialAccessKeyId, 
       await dialog.showMessageBox(getCurrentWindow(), {
         type: 'info',
         title: 'Success!',
-        message: 'Info successfully saved.'
+        message: 'Info successfully saved.',
+        buttons: ['OK']
       });
       setActiveView(activeViews.UPLOAD);
     } catch(err) {

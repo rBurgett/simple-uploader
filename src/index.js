@@ -30,41 +30,46 @@ app.on('ready', () => {
 
   appWindow.loadURL(`file://${path.resolve(__dirname, '..')}/public/index.html`);
 
-  if(platform === 'darwin') {
-    const menuTemplate = [];
-    // File Menu
+  const menuTemplate = [];
+  // File Menu
+  menuTemplate.push({
+    label: 'File',
+    submenu: [
+      { role: 'quit' }
+    ]
+  });
+  // Edit Menu
+  menuTemplate.push({
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { type: 'separator' },
+      { role: 'selectall' }
+    ]
+  });
+  // Window Menu
+  if(isDev) {
     menuTemplate.push({
-      label: 'File',
+      label: 'Window',
       submenu: [
-        { role: 'quit' }
+        { label: 'Show Dev Tools', role: 'toggledevtools' }
       ]
     });
-    // Edit Menu
-    menuTemplate.push({
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectall' }
-      ]
-    });
-    // Window Menu
-    if(isDev) {
-      menuTemplate.push({
-        label: 'Window',
-        submenu: [
-          { label: 'Show Dev Tools', role: 'toggledevtools' }
-        ]
-      });
-    }
-    const appMenu = Menu.buildFromTemplate(menuTemplate);
-    Menu.setApplicationMenu(appMenu);
   }
-
+  // About Menu
+  menuTemplate.push({
+    label: 'About',
+    submenu: [
+      { label: 'Visit Website' }
+    ]
+  });
+  const appMenu = Menu.buildFromTemplate(menuTemplate);
+    Menu.setApplicationMenu(appMenu);
 });
 
 ipcMain.on('getVersion', e => {

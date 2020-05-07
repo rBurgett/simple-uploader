@@ -136,101 +136,112 @@ const App = () => {
   };
 
   const uploadFiles = async function(filePaths) {
-    const stats = await fs.stat(filePaths[0]);
-    const isDirectory = stats.isDirectory();
-    let filePath;
-    if(filePaths.length === 1 && !isDirectory) {
-      filePath = filePaths[0];
-      const { response } = await dialog.showMessageBox(getCurrentWindow(), {
-        type: 'warning',
-        title: 'Confirm Upload',
-        message: `Are you sure that you want to upload ${path.basename(filePath)}?`,
-        defaultId: 1,
-        buttons: [
-          'Cancel',
-          'OK'
-        ]
-      });
-      if(!response) return;
-    } else if(filePaths.length === 1 && isDirectory) {
-      const { response } = await dialog.showMessageBox(getCurrentWindow(), {
-        type: 'warning',
-        title: 'Confirm Upload',
-        message: `Would you like to zip and upload the folder ${path.basename(filePaths[0])}?`,
-        defaultId: 1,
-        buttons: [
-          'Cancel',
-          'OK'
-        ]
-      });
-      if(!response) return;
-      setUploadingMessage('Compressing...');
+    try {
+      const stats = await fs.stat(filePaths[0]);
+      const isDirectory = stats.isDirectory();
+      let filePath;
+      if(filePaths.length === 1 && !isDirectory) {
+        filePath = filePaths[0];
+        const { response } = await dialog.showMessageBox(getCurrentWindow(), {
+          type: 'warning',
+          title: 'Confirm Upload',
+          message: `Are you sure that you want to upload ${path.basename(filePath)}?`,
+          defaultId: 1,
+          buttons: [
+            'Cancel',
+            'OK'
+          ]
+        });
+        if(!response) return;
+      } else if(filePaths.length === 1 && isDirectory) {
+        const { response } = await dialog.showMessageBox(getCurrentWindow(), {
+          type: 'warning',
+          title: 'Confirm Upload',
+          message: `Would you like to zip and upload the folder ${path.basename(filePaths[0])}?`,
+          defaultId: 1,
+          buttons: [
+            'Cancel',
+            'OK'
+          ]
+        });
+        if(!response) return;
+        setUploadingMessage('Compressing...');
+        setUploading(true);
+        filePath = await zipDirectory(filePaths[0]);
+      } else {
+        const { response } = await dialog.showMessageBox(getCurrentWindow(), {
+          type: 'warning',
+          title: 'Confirm Upload',
+          message: `Would you like to zip and upload these ${filePaths.length} files?`,
+          defaultId: 1,
+          buttons: [
+            'Cancel',
+            'OK'
+          ]
+        });
+        if(!response) return;
+        setUploadingMessage('Compressing...');
+        setUploading(true);
+        filePath = await zipFiles(filePaths);
+      }
+      const key = prepFilename(filePath);
+      setUploadingMessage('Uploading');
       setUploading(true);
-      filePath = await zipDirectory(filePaths[0]);
-    } else {
-      const { response } = await dialog.showMessageBox(getCurrentWindow(), {
-        type: 'warning',
-        title: 'Confirm Upload',
-        message: `Would you like to zip and upload these ${filePaths.length} files?`,
-        defaultId: 1,
-        buttons: [
-          'Cancel',
-          'OK'
-        ]
+      await new Promise((resolve, reject) => {
+        const client = s3.createClient({
+          multipartUploadThreshhold: 1000000000,
+          multipartUploadSize: 1000000000,
+          s3Options: {
+            region,
+            accessKeyId,
+            secretAccessKey
+          }
+        });
+        const params = {
+          localFile: filePath,
+          s3Params: {
+            Bucket: bucket,
+            Key: key,
+            ACL: 'public-read'
+          }
+        };
+        const uploader = client.uploadFile(params);
+        uploader.on('error', function(err) {
+          reject(err);
+        });
+        uploader.on('progress', function() {
+          const percentage = (uploader.progressAmount / uploader.progressTotal) * 100;
+          setUploadingPercent(percentage);
+        });
+        uploader.on('end', function() {
+          resolve();
+        });
       });
-      if(!response) return;
-      setUploadingMessage('Compressing...');
-      setUploading(true);
-      filePath = await zipFiles(filePaths);
+      const downloadLink = getDownloadLink(bucket, key);
+      clipboard.writeText(downloadLink);
+      const newUploads = [
+        ...uploads,
+        new UploadType({
+          key,
+          date: new Date().getTime()
+        })
+      ];
+      saveUploads(newUploads);
+      await dialog.showMessageBox(getCurrentWindow(), {
+        type: 'info',
+        title: 'Success!',
+        message: `${downloadLink} copied to clipboard.`,
+        buttons: ['OK']
+      });
+      setUploading(false);
+      setUploadingMessage('');
+      setUploadingPercent(0);
+    } catch(err) {
+      handleError(err);
+      setUploading(false);
+      setUploadingMessage('');
+      setUploadingPercent(0);
     }
-    const key = prepFilename(filePath);
-    setUploadingMessage('Uploading');
-    setUploading(true);
-    await new Promise((resolve, reject) => {
-      const client = s3.createClient({
-        multipartUploadThreshhold: 1000000000,
-        multipartUploadSize: 1000000000,
-        s3Options: {
-          region,
-          accessKeyId,
-          secretAccessKey
-        }
-      });
-      const params = {
-        localFile: filePath,
-        s3Params: {
-          Bucket: bucket,
-          Key: key,
-          ACL: 'public-read'
-        }
-      };
-      const uploader = client.uploadFile(params);
-      uploader.on('error', function(err) {
-        reject(err);
-      });
-      uploader.on('progress', function() {
-        const percentage = (uploader.progressAmount / uploader.progressTotal) * 100;
-        setUploadingPercent(percentage);
-      });
-      uploader.on('end', function() {
-        resolve();
-      });
-    });
-    const downloadLink = getDownloadLink(bucket, key);
-    clipboard.writeText(downloadLink);
-    const newUploads = [
-      ...uploads,
-      new UploadType({
-        key,
-        date: new Date().getTime()
-      })
-    ];
-    saveUploads(newUploads);
-    await dialog.showMessageBox(getCurrentWindow(), {
-      type: 'info',
-      title: 'Success!',
-      message: `${downloadLink} copied to clipboard.`
-    });
   };
 
   const onDragOver = e => {
@@ -242,21 +253,15 @@ const App = () => {
   const onMouseOut = () => {
     if(!uploading) setHovering(false);
   };
-  const onDrop = async function(e) {
+  const onDrop = e => {
     try {
       e.preventDefault();
       if(uploading) return;
       setHovering(false);
       const files = [...e.dataTransfer.files];
       if(files.length === 0) return;
-      await uploadFiles(files.map(f => f.path));
-      setUploading(false);
-      setUploadingMessage('');
-      setUploadingPercent(0);
+      uploadFiles(files.map(f => f.path));
     } catch(err) {
-      setUploading(false);
-      setUploadingMessage('');
-      setUploadingPercent(0);
       handleError(err);
     }
   };
