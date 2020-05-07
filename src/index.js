@@ -3,6 +3,7 @@ import isDev from 'electron-is-dev';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs-extra';
 import path from 'path';
+import { ipcRendererKeys } from './constants';
 
 const { platform } = process;
 
@@ -83,8 +84,8 @@ app.on('ready', () => {
     Menu.setApplicationMenu(appMenu);
 });
 
-ipcMain.on('getVersion', e => {
-  const { version } = fs.readJsonSync(path.join(__dirname, 'package.json'));
+ipcMain.on(ipcRendererKeys.GET_VERSION, e => {
+  const { version } = fs.readJsonSync(path.resolve(__dirname, '../package.json'));
   e.returnValue = version;
 });
 

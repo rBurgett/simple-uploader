@@ -65,3 +65,4 @@ typings/
 /temp
 /dist-native
 .DS_Store
+/public/css

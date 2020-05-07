@@ -11,3 +11,7 @@ export const localStorageKeys = {
   AWS_ACCESS_KEY_ID: 'accessKeyId',
   AWS_SECRET_ACCESS_KEY: 'secretAccessKey'
 };
+
+export const ipcRendererKeys = {
+  GET_VERSION: 'GET_VERSION'
+};
