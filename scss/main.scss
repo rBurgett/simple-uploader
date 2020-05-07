@@ -1,0 +1,19 @@
+@import './toolkit-inverse/toolkit-inverse';
+
+a {
+  svg.svg-icon {
+    fill: $link-color;
+    &:hover {
+      fill: $link-hover-color;
+    }
+  }
+}
+
+a.text-danger {
+  svg.svg-icon {
+    fill: $red;
+    &:hover {
+      fill: darken($red, 15%);
+    }
+  }
+}
