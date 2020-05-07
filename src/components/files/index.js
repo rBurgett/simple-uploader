@@ -26,16 +26,27 @@ const FilesView = ({ region, accessKeyId, secretAccessKey, bucket, uploads, save
       maxWidth: '100%'
     },
     table: {
+      tableLayout: 'fixed',
+      width: '100%',
       marginBottom: 0
     },
     dateColumnHeading: {
-      minWidth: 86,
+      minWidth: 84,
+      width: 84
+    },
+    linkColumnHeading: {
+      minWidth: 40,
+      width: 40
+    },
+    deleteColumnHeading: {
+      minWidth: 55,
+      width: 55
     },
     dateColumn: {
       fontFamily: 'monospace'
     },
     keyColumn: {
-      // fontFamily: 'monospace'
+      wordWrap: 'break-word'
     },
     icon: {
       width: 16,
@@ -45,14 +56,14 @@ const FilesView = ({ region, accessKeyId, secretAccessKey, bucket, uploads, save
 
   return (
     <div style={styles.container}>
-      <div style={styles.tableContainer} className={'table-responsive'}>
+      <div style={styles.tableContainer}>
         <table style={styles.table} className={'table table-bordered table-sm'}>
           <thead>
           <tr>
             <th style={styles.dateColumnHeading}>Date</th>
             <th>Name</th>
-            <th>Link</th>
-            <th>Delete</th>
+            <th style={styles.linkColumnHeading}>Link</th>
+            <th style={styles.deleteColumnHeading}>Delete</th>
           </tr>
           </thead>
           <tbody>
@@ -114,7 +125,7 @@ const FilesView = ({ region, accessKeyId, secretAccessKey, bucket, uploads, save
               return (
                 <tr key={date + key}>
                   <td className={'text-center'} style={styles.dateColumn}>{formattedDate}</td>
-                  <td style={styles.keyColumn} className={'text-break'}>{key}</td>
+                  <td style={styles.keyColumn} className={''}>{key}</td>
                   <td className={'text-center'}><a href={'#'} onClick={onCopy} title={'Copy download link to clipboard'}><CopyIcon style={styles.icon} /></a></td>
                   <td className={'text-center'}><a href={'#'} className={'text-danger'} onClick={onDelete} title={'Delete file from bucket'}><RemoveIcon style={styles.icon} /></a></td>
                 </tr>

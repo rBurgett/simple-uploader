@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
 import isDev from 'electron-is-dev';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs-extra';
@@ -11,7 +11,7 @@ require('electron-context-menu')();
 app.on('ready', () => {
 
   const width = 400;
-  const height = platform === 'win32' ? 420 : platform === 'darwin' ? 400 : 400;
+  const height = platform === 'win32' ? 440 : platform === 'darwin' ? 400 : 400;
   const appWindow = new BrowserWindow({
     show: false,
     minWidth: width,
@@ -65,7 +65,18 @@ app.on('ready', () => {
   menuTemplate.push({
     label: 'About',
     submenu: [
-      { label: 'Visit Website' }
+      {
+        label: 'Visit Website',
+        click: () => {
+          shell.openExternal('https://github.com/rBurgett/simple-uploader');
+        }
+      },
+      {
+        label: 'Burgett Dev Services',
+        click: () => {
+          shell.openExternal('https://burgettdev.net');
+        }
+      }
     ]
   });
   const appMenu = Menu.buildFromTemplate(menuTemplate);
