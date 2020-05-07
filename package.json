@@ -67,6 +67,7 @@
       "output": "dist-native"
     },
     "win": {
+      "verifyUpdateCodeSignature": false,
       "target": [
         {
           "target": "nsis",
