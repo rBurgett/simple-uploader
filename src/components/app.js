@@ -64,9 +64,9 @@ const zipDirectory = origFilePath => new Promise((resolve, reject) => {
 const prepFilename = filePath => {
   const ext = path.extname(filePath);
   const base = path.basename(filePath, ext)
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-.]/g, '');
-  return base + '-' + getRandom(4) + ext;
+    .replace(/[^\w\s-.]/g, '')
+    .replace(/\s+/g, '-');
+  return base + ext;
 };
 
 const uploadsJSON = localStorage.getItem(localStorageKeys.UPLOADS);
@@ -184,7 +184,7 @@ const App = () => {
         setUploading(true);
         filePath = await zipFiles(filePaths);
       }
-      const key = prepFilename(filePath);
+      const key = getRandom(12) + '/' + prepFilename(filePath);
       setUploadingMessage('Uploading');
       setUploading(true);
       await new Promise((resolve, reject) => {

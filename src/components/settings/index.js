@@ -5,7 +5,7 @@ import { activeViews, localStorageKeys } from '../../constants';
 
 const { dialog, getCurrentWindow } = remote;
 
-const TextInput = ({ label, value, onChange }) => {
+const TextInput = ({ label, value, type = 'text', onChange }) => {
 
   const styles = {
     formGroup: {
@@ -21,13 +21,14 @@ const TextInput = ({ label, value, onChange }) => {
   return (
     <div className={'form-group'} style={styles.formGroup}>
       <label>{label}</label>
-      <input type={'text'} className={'form-control form-control-sm'} value={value} onChange={onInputChange} required={true} />
+      <input type={type} className={'form-control form-control-sm'} value={value} onChange={onInputChange} required={true} />
     </div>
   );
 };
 TextInput.propTypes = {
   label: PropTypes.string,
   value: PropTypes.string,
+  type: PropTypes.string,
   onChange: PropTypes.func
 };
 
@@ -74,7 +75,7 @@ const SettingsView = ({ region: initialRegion, accessKeyId: initialAccessKeyId, 
     <form style={styles.container} onSubmit={onSubmit}>
       <TextInput label={'S3 Bucket'} value={bucket} onChange={setBucket} />
       <TextInput label={'AWS Access Key ID'} value={accessKeyId} onChange={setAWSAccessKeyid} />
-      <TextInput label={'AWS Secret Access Key'} value={secretAccessKey} onChange={setSecretAccessKey} />
+      <TextInput type={'password'} label={'AWS Secret Access Key'} value={secretAccessKey} onChange={setSecretAccessKey} />
       <TextInput label={'AWS Region'} value={region} onChange={setRegion} />
       <button type={'submit'} style={styles.button} className={'btn btn-primary d-block w-100'}>Save Credentials</button>
     </form>

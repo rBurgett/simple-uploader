@@ -8,6 +8,11 @@ import CopyIcon from '../shared/copy-icon';
 import RemoveIcon from '../shared/remove-icon';
 import { getDownloadLink } from '../../util';
 
+const getFilenameFromKey = key => {
+  const splitKey = key.split('/');
+  return splitKey[splitKey.length - 1];
+};
+
 const { dialog, getCurrentWindow } = remote;
 
 const FilesView = ({ region, accessKeyId, secretAccessKey, bucket, uploads, saveUploads }) => {
@@ -79,12 +84,14 @@ const FilesView = ({ region, accessKeyId, secretAccessKey, bucket, uploads, save
                 clipboard.writeText(getDownloadLink(bucket, key));
               };
 
+              const filename = getFilenameFromKey(key);
+
               const onDelete = async function(e) {
                 try {
                   e.preventDefault();
                   const { response } = await dialog.showMessageBox(getCurrentWindow(), {
                     title: 'Confirm',
-                    message: `Are you sure that you want to delete ${key}?`,
+                    message: `Are you sure that you want to delete ${filename}?`,
                     type: 'warning',
                     defaultId: 1,
                     buttons: [
@@ -125,7 +132,7 @@ const FilesView = ({ region, accessKeyId, secretAccessKey, bucket, uploads, save
               return (
                 <tr key={date + key}>
                   <td className={'text-center'} style={styles.dateColumn}>{formattedDate}</td>
-                  <td style={styles.keyColumn} className={''}>{key}</td>
+                  <td style={styles.keyColumn} className={''}>{filename}</td>
                   <td className={'text-center'}><a href={'#'} onClick={onCopy} title={'Copy download link to clipboard'}><CopyIcon style={styles.icon} /></a></td>
                   <td className={'text-center'}><a href={'#'} className={'text-danger'} onClick={onDelete} title={'Delete file from bucket'}><RemoveIcon style={styles.icon} /></a></td>
                 </tr>
