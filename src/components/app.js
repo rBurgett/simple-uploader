@@ -84,8 +84,10 @@ const App = () => {
   const [ accessKeyId, setAccessKeyId ] = useState(localStorage.getItem(localStorageKeys.AWS_ACCESS_KEY_ID) || '');
   const [ secretAccessKey, setSecretAccessKey ] = useState(localStorage.getItem(localStorageKeys.AWS_SECRET_ACCESS_KEY) || '');
   const [ uploads, setUploads ] = useState(initialUploads);
-  const [ activeView, setActiveView ] = useState(activeViews.UPLOAD);
   const [ windowSize, setWindowSize ] = useState({width: window.innerWidth, height: window.innerHeight});
+
+  const credentialsReady = bucket && region && accessKeyId && secretAccessKey;
+  const [ activeView, setActiveView ] = useState(credentialsReady ? activeViews.UPLOAD : activeViews.SETTINGS);
 
   useEffect(() => {
     window.addEventListener('resize', e => {
@@ -271,7 +273,7 @@ const App = () => {
   return (
     <div style={styles.container} onDragOver={onDragOver} onDragEnter={onDragEnter} onDrop={onDrop} onMouseOut={onMouseOut}>
       <div style={styles.headerContainer}>
-        <Header activeView={activeView} setActiveView={setActiveView} />
+        <Header activeView={activeView} setActiveView={setActiveView} disabled={!credentialsReady} />
       </div>
       <div style={styles.bodyContainer}>
         {activeView === activeViews.UPLOAD ?
