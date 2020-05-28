@@ -13,13 +13,13 @@ import { clipboard, remote } from 'electron';
 import archiver from 'archiver';
 import { getDownloadLink } from '../util';
 
-const getRandom = len => {
-  let rand = '';
-  while(rand.length < len) {
-    rand += uuid.v4().replace(/-/g, '');
-  }
-  return rand.slice(0, len);
-};
+// const getRandom = len => {
+//   let rand = '';
+//   while(rand.length < len) {
+//     rand += uuid.v4().replace(/-/g, '');
+//   }
+//   return rand.slice(0, len);
+// };
 
 const { dialog, getCurrentWindow } = remote;
 const tempDir = remote.app.getPath('temp');
@@ -84,8 +84,10 @@ const App = () => {
   const [ accessKeyId, setAccessKeyId ] = useState(localStorage.getItem(localStorageKeys.AWS_ACCESS_KEY_ID) || '');
   const [ secretAccessKey, setSecretAccessKey ] = useState(localStorage.getItem(localStorageKeys.AWS_SECRET_ACCESS_KEY) || '');
   const [ uploads, setUploads ] = useState(initialUploads);
-  const [ activeView, setActiveView ] = useState(activeViews.UPLOAD);
   const [ windowSize, setWindowSize ] = useState({width: window.innerWidth, height: window.innerHeight});
+
+  const credentialsReady = bucket && region && accessKeyId && secretAccessKey;
+  const [ activeView, setActiveView ] = useState(credentialsReady ? activeViews.UPLOAD : activeViews.SETTINGS);
 
   useEffect(() => {
     window.addEventListener('resize', e => {
@@ -184,7 +186,8 @@ const App = () => {
         setUploading(true);
         filePath = await zipFiles(filePaths);
       }
-      const key = getRandom(12) + '/' + prepFilename(filePath);
+      const preppedFilename = prepFilename(filePath);
+      const key = uuid.v4() + '/' + preppedFilename;
       setUploadingMessage('Uploading');
       setUploading(true);
       await new Promise((resolve, reject) => {
@@ -230,7 +233,8 @@ const App = () => {
       await dialog.showMessageBox(getCurrentWindow(), {
         type: 'info',
         title: 'Success!',
-        message: `${downloadLink} copied to clipboard.`,
+        message: `Download link for ${preppedFilename} copied to clipboard.`,
+        // message: `${downloadLink} copied to clipboard.`,
         buttons: ['OK']
       });
       setUploading(false);
@@ -269,7 +273,7 @@ const App = () => {
   return (
     <div style={styles.container} onDragOver={onDragOver} onDragEnter={onDragEnter} onDrop={onDrop} onMouseOut={onMouseOut}>
       <div style={styles.headerContainer}>
-        <Header activeView={activeView} setActiveView={setActiveView} />
+        <Header activeView={activeView} setActiveView={setActiveView} disabled={!credentialsReady} />
       </div>
       <div style={styles.bodyContainer}>
         {activeView === activeViews.UPLOAD ?
