@@ -13,13 +13,13 @@ import { clipboard, remote } from 'electron';
 import archiver from 'archiver';
 import { getDownloadLink } from '../util';
 
-const getRandom = len => {
-  let rand = '';
-  while(rand.length < len) {
-    rand += uuid.v4().replace(/-/g, '');
-  }
-  return rand.slice(0, len);
-};
+// const getRandom = len => {
+//   let rand = '';
+//   while(rand.length < len) {
+//     rand += uuid.v4().replace(/-/g, '');
+//   }
+//   return rand.slice(0, len);
+// };
 
 const { dialog, getCurrentWindow } = remote;
 const tempDir = remote.app.getPath('temp');
@@ -184,7 +184,8 @@ const App = () => {
         setUploading(true);
         filePath = await zipFiles(filePaths);
       }
-      const key = getRandom(12) + '/' + prepFilename(filePath);
+      const preppedFilename = prepFilename(filePath);
+      const key = uuid.v4() + '/' + preppedFilename;
       setUploadingMessage('Uploading');
       setUploading(true);
       await new Promise((resolve, reject) => {
@@ -230,7 +231,8 @@ const App = () => {
       await dialog.showMessageBox(getCurrentWindow(), {
         type: 'info',
         title: 'Success!',
-        message: `${downloadLink} copied to clipboard.`,
+        message: `Download link for ${preppedFilename} copied to clipboard.`,
+        // message: `${downloadLink} copied to clipboard.`,
         buttons: ['OK']
       });
       setUploading(false);
