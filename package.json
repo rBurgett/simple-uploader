@@ -39,7 +39,7 @@
     "eslint-plugin-react-hooks": "^4.0.0",
     "less-plugin-autoprefixer": "^2.1.0",
     "lodash": "^4.17.10",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "nodemon": "^2.0.3",
     "postcss-cli": "^7.1.1",
     "rmrf-promise": "^1.1.0"
